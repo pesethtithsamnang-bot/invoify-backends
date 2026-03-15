@@ -14,9 +14,9 @@ app.use(cors());
 app.use(express.json());
 
 // ── CONFIG (replace with your real values) ──
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_SERVICE_KEY = "YOUR_SUPABASE_SERVICE_KEY";
-const ADMIN_SECRET = "YOUR_ADMIN_SECRET_PASSWORD"; // protect admin routes
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const ADMIN_SECRET = process.env.ADMIN_SECRET; // protect admin routes
 const PORT = 3000;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
