@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invoify Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#0B5E43;--green-mid:#1A7A57;--green-light:#E8F5F0;
+  --gold:#C9A84C;--red:#DC2626;--blue:#2563EB;--purple:#7C3AED;
+  --bg:#F0F2F5;--surface:#FFFFFF;--surface2:#F8F9FA;
+  --border:#E5E7EB;--text:#111827;--text2:#6B7280;--text3:#9CA3AF;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--text);min-height:100vh;padding:20px 0;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+.sidebar-brand-name{color:#fff;font-size:16px;font-weight:800}
+.sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:600;transition:all .15s;border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.sidebar-nav a.active{background:rgba(11,94,67,.4);color:#fff;border-left-color:var(--green-mid)}
+.sidebar-section{padding:8px 20px 4px;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,.3);text-transform:uppercase;font-weight:800;margin-top:8px}
+.sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.admin-badge{background:var(--gold);color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:1px}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;padding:28px;min-width:0}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.page-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.topbar-right{display:flex;gap:10px;align-items:center}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+.card-sm{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.green::before{background:var(--green)}
+.stat-card.gold::before{background:var(--gold)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-card.red::before{background:var(--red)}
+.stat-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-value{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-sub{font-size:11px;color:var(--text3)}
+.stat-icon{position:absolute;top:16px;right:16px;font-size:24px;opacity:.15}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-weight:700;font-size:12.5px;font-family:inherit;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:var(--green-mid)}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-red{background:#FEE2E2;color:var(--red);border:1px solid #FECACA}.btn-red:hover{background:#FECACA}
+.btn-outline{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface2)}
+.btn-sm{padding:6px 12px;font-size:11.5px;border-radius:7px}
+.btn-xs{padding:4px 9px;font-size:10.5px;border-radius:6px}
+.btn-full{width:100%;justify-content:center}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:11px 14px;text-align:left;font-size:10.5px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;letter-spacing:.3px}
+.badge-green{background:#D1FAE5;color:#065F46}
+.badge-gold{background:#FEF3C7;color:#92400E}
+.badge-purple{background:#EDE9FE;color:#5B21B6}
+.badge-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.badge-red{background:#FEE2E2;color:#991B1B}
+.badge-blue{background:#DBEAFE;color:#1E40AF}
+
+/* FORM */
+input,select,textarea{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);font-family:inherit;outline:none;transition:all .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(11,94,67,.08)}
+label{font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.field{margin-bottom:14px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--surface);border-radius:16px;padding:32px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;animation:slideUp .2s ease;pointer-events:none}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:22px;border:1px solid var(--border)}
+.tab{padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--text2);border:none;background:transparent;font-family:inherit;transition:all .15s}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* MINI CHART */
+.chart-bar{display:flex;align-items:flex-end;gap:3px;height:60px;padding-top:8px}
+.bar{flex:1;background:var(--green-light);border-radius:3px 3px 0 0;min-width:4px;transition:all .3s;cursor:pointer;position:relative}
+.bar:hover{background:var(--green)}
+
+/* INFO BOX */
+.info-box{background:var(--green-light);border:1px solid rgba(11,94,67,.15);border-radius:8px;padding:12px 16px;font-size:12.5px;color:var(--green);margin-bottom:14px;line-height:1.65}
+.warn-box{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 16px;font-size:12.5px;color:#92400E;margin-bottom:14px}
+
+/* SEARCH */
+.search-wrap{position:relative}
+.search-wrap input{padding-left:34px}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;width:100vw;position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:var(--surface);border-radius:18px;padding:40px;max-width:380px;width:100%;box-shadow:var(--shadow-md)}
+
+@media(max-width:768px){.sidebar{width:180px}.main{margin-left:180px;padding:16px}.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- LOGIN -->
+  <div class="login-wrap" v-if="!authed">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:32px;margin-bottom:10px">◈</div>
+        <h2 style="font-size:22px;font-weight:800">Invoify Admin</h2>
+        <p style="color:var(--text2);font-size:13px;margin-top:4px">Restricted access</p>
+      </div>
+      <div class="field"><label>Admin Password</label><input type="password" v-model="adminPass" placeholder="Enter admin password" @keyup.enter="doAdminLogin"></div>
+      <div style="color:var(--red);font-size:12px;margin-bottom:10px" v-if="loginError">{{loginError}}</div>
+      <button class="btn btn-green btn-full" @click="doAdminLogin">Sign in →</button>
+      <p style="text-align:center;margin-top:14px;font-size:11.5px;color:var(--text3)">Set your password in server.js → ADMIN_SECRET</p>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <template v-if="authed">
+
+    <!-- TOAST -->
+    <div class="toast" v-if="toast.show">{{toast.msg}}</div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div style="width:32px;height:32px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0">I</div>
+        <span class="sidebar-brand-name">Invoify</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a @click.prevent="page='overview'" :class="{active:page==='overview'}" href="#">
+          <span>◈</span> Overview
+        </a>
+        <a @click.prevent="page='analytics'" :class="{active:page==='analytics'}" href="#">
+          <span>◉</span> Analytics
+        </a>
+        <div class="sidebar-section">Management</div>
+        <a @click.prevent="page='users'" :class="{active:page==='users'}" href="#">
+          <span>◎</span> Users
+        </a>
+        <a @click.prevent="page='payments'" :class="{active:page==='payments'}" href="#">
+          <span>◆</span> Revenue
+        </a>
+        <a @click.prevent="page='keys'" :class="{active:page==='keys'}" href="#">
+          <span>◇</span> License Keys
+        </a>
+        <div class="sidebar-section">Config</div>
+        <a @click.prevent="page='settings'" :class="{active:page==='settings'}" href="#">
+          <span>◐</span> Settings
+        </a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="admin-badge">ADMIN</span>
+        <div style="color:rgba(255,255,255,.4);font-size:11px;margin-top:8px">Invoify v5.0</div>
+        <button @click="authed=false" style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;margin-top:8px;font-family:inherit">Logout</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <!-- ═══ OVERVIEW ═══ -->
+      <div v-if="page==='overview'">
+        <div class="topbar">
+          <div>
+            <div class="page-title">Dashboard Overview</div>
+            <div class="page-sub">{{new Date().toLocaleDateString('en',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}}</div>
+          </div>
+          <div class="topbar-right">
+            <button class="btn btn-outline btn-sm" @click="loadOverview">↻ Refresh</button>
+            <button class="btn btn-green btn-sm" @click="page='keys'">+ Generate Keys</button>
+          </div>
+        </div>
+
+        <div v-if="loading" style="text-align:center;padding:60px;color:var(--text3)">Loading...</div>
+
+        <template v-else-if="overview">
+          <!-- STATS -->
+          <div class="stat-grid">
+            <div class="stat-card green">
+              <div class="stat-icon">◆</div>
+              <div class="stat-label">Total Revenue</div>
+              <div class="stat-value" style="color:var(--green)">${{overview.stats.totalRevenue}}</div>
+              <div class="stat-sub">This month: ${{overview.stats.monthRevenue}}</div>
+            </div>
+            <div class="stat-card gold">
+              <div class="stat-icon">◎</div>
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value" style="color:var(--gold)">{{overview.stats.totalUsers}}</div>
+              <div class="stat-sub">Pro: {{overview.stats.proUsers}} · Max: {{overview.stats.maxUsers}}</div>
+            </div>
+            <div class="stat-card blue">
+              <div class="stat-icon">◎</div>
+              <div class="stat-label">Total Visits</div>
+              <div class="stat-value" style="color:var(--blue)">{{overview.stats.totalVisits}}</div>
+              <div class="stat-sub">Today: {{overview.stats.todayVisits}}</div>
+            </div>
+            <div class="stat-card purple">
+              <div class="stat-icon">◉</div>
+              <div class="stat-label">Invoices Generated</div>
+              <div class="stat-value" style="color:var(--purple)">{{overview.stats.totalInvoices}}</div>
+              <div class="stat-sub">Today: {{overview.stats.todayInvoices}}</div>
+            </div>
+            <div class="stat-card gold">
+              <div class="stat-icon">◇</div>
+              <div class="stat-label">License Keys</div>
+              <div class="stat-value" style="color:var(--gold)">{{overview.stats.keysAvailable}}</div>
+              <div class="stat-sub">Available · Used: {{overview.stats.keysUsed}}</div>
+            </div>
+          </div>
+
+          <div class="g2" style="margin-bottom:24px">
+            <!-- Top countries -->
+            <div class="card">
+              <div style="font-size:13px;font-weight:800;margin-bottom:16px;color:var(--text)">Top Countries</div>
+              <div v-for="(c,i) in (overview.topCountries||[])" :key="c.country" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="font-size:12px;color:var(--text2);width:20px;font-weight:700">{{i+1}}</div>
+                <div style="flex:1;font-size:13px;font-weight:600">{{c.country}}</div>
+                <div style="font-size:12px;color:var(--text2);font-weight:700">{{c.count}} visits</div>
+                <div style="height:6px;width:60px;background:var(--border);border-radius:3px;overflow:hidden">
+                  <div :style="{width:(c.count/overview.topCountries[0].count*100)+'%',height:'100%',background:'var(--green)',borderRadius:'3px'}"></div>
+                </div>
+              </div>
+              <div v-if="!(overview.topCountries||[]).length" style="color:var(--text3);font-size:13px">No data yet. Add tracking to invoify.html.</div>
+            </div>
+
+            <!-- Plan distribution -->
+            <div class="card">
+              <div style="font-size:13px;font-weight:800;margin-bottom:16px">Plan Distribution</div>
+              <div v-if="overview.stats.totalUsers>0">
+                <div v-for="[label,count,color] in [['Free',overview.stats.freeUsers,'var(--text3)'],['Pro',overview.stats.proUsers,'var(--gold)'],['Max',overview.stats.maxUsers,'var(--purple)']]" :key="label"
+                  style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                    <span style="font-size:12.5px;font-weight:700" :style="{color}">{{label}}</span>
+                    <span style="font-size:12.5px;font-weight:800;color:var(--text)">{{count}} users</span>
+                  </div>
+                  <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+                    <div :style="{width:(count/overview.stats.totalUsers*100)+'%',height:'100%',background:color,borderRadius:'4px',transition:'width .5s ease'}"></div>
+                  </div>
+                </div>
+              </div>
+              <div v-else style="color:var(--text3);font-size:13px">No users yet.</div>
+            </div>
+          </div>
+
+          <!-- Recent users -->
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div style="font-size:13px;font-weight:800">Recent Registrations</div>
+              <button class="btn btn-ghost btn-sm" @click="page='users'">View all →</button>
+            </div>
+            <div class="table-wrap" v-if="(overview.recentUsers||[]).length">
+              <table>
+                <thead><tr><th>User ID</th><th>Plan</th><th>Joined</th></tr></thead>
+                <tbody>
+                  <tr v-for="u in (overview.recentUsers||[])" :key="u.id">
+                    <td style="font-family:monospace;font-size:11px;color:var(--text2)">{{u.id?.substring(0,12)}}...</td>
+                    <td><span class="badge" :class="{'badge-gold':u.plan==='pro','badge-purple':u.plan==='max','badge-gray':u.plan==='free'}">{{u.plan?.toUpperCase()}}</span></td>
+                    <td style="color:var(--text2);font-size:12px">{{u.created_at?.split("T")[0]}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div v-else style="color:var(--text3);font-size:13px;padding:12px 0">No users yet. Share invoify.shop to get started.</div>
+          </div>
+        </template>
+
+        <!-- NO BACKEND warning -->
+        <div class="warn-box" style="margin-top:16px">
+          <strong>Backend required.</strong> This dashboard reads from your Invoify backend server. Make sure server.js is running and API_BASE_URL below is set correctly.
+          Current API: <code style="background:#FDE68A;padding:2px 6px;border-radius:4px">{{API_BASE}}</code>
+        </div>
+      </div>
+
+      <!-- ═══ ANALYTICS ═══ -->
+      <div v-if="page==='analytics'">
+        <div class="topbar">
+          <div><div class="page-title">Analytics</div><div class="page-sub">Visits, invoices, and usage trends</div></div>
+          <button class="btn btn-outline btn-sm" @click="loadAnalytics">↻ Refresh</button>
+        </div>
+
+        <div v-if="analytics" >
+          <div class="g3" style="margin-bottom:24px">
+            <div class="stat-card blue"><div class="stat-label">Total Visits</div><div class="stat-value" style="color:var(--blue)">{{analytics.totalVisits}}</div><div class="stat-sub">All time</div></div>
+            <div class="stat-card green"><div class="stat-label">Free Invoices</div><div class="stat-value" style="color:var(--green)">{{analytics.invoicesByPlan?.free||0}}</div><div class="stat-sub">Generated on free plan</div></div>
+            <div class="stat-card gold"><div class="stat-label">Paid Invoices</div><div class="stat-value" style="color:var(--gold)">{{(analytics.invoicesByPlan?.pro||0)+(analytics.invoicesByPlan?.max||0)}}</div><div class="stat-sub">Pro + Max combined</div></div>
+          </div>
+
+          <!-- Daily chart -->
+          <div class="card" style="margin-bottom:24px">
+            <div style="font-size:13px;font-weight:800;margin-bottom:20px">Daily Visits — Last 30 Days</div>
+            <div class="chart-bar" v-if="analytics.dailyVisits">
+              <div v-for="d in analytics.dailyVisits" :key="d.date" class="bar"
+                :style="{height:Math.max(4,(d.count/(Math.max(...analytics.dailyVisits.map(x=>x.count))||1)*100))+'%'}"
+                :title="d.date+': '+d.count+' visits'"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text3)">
+              <span>{{analytics.dailyVisits?.[0]?.date}}</span>
+              <span>{{analytics.dailyVisits?.[analytics.dailyVisits.length-1]?.date}}</span>
+            </div>
+          </div>
+        </div>
+        <div v-else style="color:var(--text3);font-size:14px;padding:40px;text-align:center">
+          No analytics data yet. <button class="btn btn-outline btn-sm" @click="loadAnalytics" style="margin-left:8px">Load →</button>
+        </div>
+      </div>
+
+      <!-- ═══ USERS ═══ -->
+      <div v-if="page==='users'">
+        <div class="topbar">
+          <div><div class="page-title">User Management</div><div class="page-sub">{{users.length}} total users</div></div>
+          <div class="topbar-right">
+            <div class="search-wrap"><span class="search-icon">🔍</span><input v-model="userSearch" placeholder="Search by name or email..." style="width:240px"></div>
+            <button class="btn btn-outline btn-sm" @click="loadUsers">↻ Refresh</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Plan</th><th>Type</th><th>Joined</th><th>Last login</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              <tr v-if="!filteredUsers.length"><td colspan="7" style="text-align:center;color:var(--text3);padding:32px">No users found</td></tr>
+              <tr v-for="u in filteredUsers" :key="u.id">
+                <td style="font-weight:700">{{u.name||"—"}}</td>
+                <td style="color:var(--text2);font-size:12px">{{u.email}}</td>
+                <td><span class="badge" :class="{'badge-gold':u.plan==='pro','badge-purple':u.plan==='max','badge-gray':u.plan==='free'}">{{u.plan?.toUpperCase()}}</span></td>
+                <td>
+                  <span v-if="u.plan_type==='lifetime'" class="badge badge-green">Lifetime</span>
+                  <span v-else class="badge badge-gray">Monthly</span>
+                </td>
+                <td style="font-size:12px;color:var(--text2)">{{u.created_at?.split("T")[0]}}</td>
+                <td style="font-size:12px;color:var(--text2)">{{u.last_login?.split("T")[0]||"Never"}}</td>
+                <td>
+                  <div style="display:flex;gap:5px">
+                    <button class="btn btn-green btn-xs" @click="editUser(u)">Edit</button>
+                    <button class="btn btn-red btn-xs" @click="confirmDeleteUser(u)">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ REVENUE ═══ -->
+      <div v-if="page==='payments'">
+        <div class="topbar">
+          <div><div class="page-title">Revenue & Payments</div><div class="page-sub">All payment transactions</div></div>
+          <div class="topbar-right">
+            <button class="btn btn-outline btn-sm" @click="loadPayments">↻ Refresh</button>
+            <button class="btn btn-green btn-sm" @click="showAddPayment=true">+ Add manual payment</button>
+          </div>
+        </div>
+
+        <!-- Revenue summary -->
+        <div class="g3" style="margin-bottom:24px">
+          <div class="stat-card green"><div class="stat-label">Total Revenue</div><div class="stat-value" style="color:var(--green)">${{totalRevenue}}</div><div class="stat-sub">All confirmed</div></div>
+          <div class="stat-card gold"><div class="stat-label">This Month</div><div class="stat-value" style="color:var(--gold)">${{monthRevenue}}</div></div>
+          <div class="stat-card blue"><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--blue)">{{pendingPayments.length}}</div><div class="stat-sub">Need confirmation</div></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Email / User</th><th>Plan</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr v-if="!payments.length"><td colspan="6" style="text-align:center;color:var(--text3);padding:32px">No payments yet</td></tr>
+              <tr v-for="p in payments" :key="p.id">
+                <td style="font-size:12px;color:var(--text2)">{{p.created_at?.split("T")[0]}}</td>
+                <td style="font-size:12.5px">{{p.email||p.user_id?.substring(0,12)||"—"}}</td>
+                <td><span class="badge" :class="{'badge-gold':p.plan==='pro','badge-purple':p.plan==='max'}">{{p.plan?.toUpperCase()}}</span></td>
+                <td style="font-weight:800">${{p.amount}} USDT</td>
+                <td>
+                  <span class="badge" :class="{'badge-green':p.status==='confirmed','badge-gold':p.status==='pending','badge-red':p.status==='refunded'}">{{p.status}}</span>
+                </td>
+                <td>
+                  <button v-if="p.status==='pending'" class="btn btn-green btn-xs" @click="confirmPayment(p)">✓ Confirm</button>
+                  <span v-else class="badge badge-gray">Done</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ LICENSE KEYS ═══ -->
+      <div v-if="page==='keys'">
+        <div class="topbar">
+          <div><div class="page-title">License Keys</div><div class="page-sub">Generate and manage activation keys</div></div>
+          <button class="btn btn-green btn-sm" @click="showGenKeys=true">+ Generate Keys</button>
+        </div>
+
+        <div class="info-box">Keys can be gifted to customers, used as affiliate rewards, or given to specific users for lifetime access. Customers paste their key in the account settings to activate.</div>
+
+        <!-- Generate modal -->
+        <div class="modal-overlay" v-if="showGenKeys" @click.self="showGenKeys=false">
+          <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+              <h3 style="font-size:18px;font-weight:800">Generate License Keys</h3>
+              <button @click="showGenKeys=false" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text2)">×</button>
+            </div>
+            <div class="g2">
+              <div class="field"><label>Plan</label>
+                <select v-model="genForm.plan"><option value="pro">Pro ($12/month)</option><option value="max">Max ($24/month)</option></select>
+              </div>
+              <div class="field"><label>Key Type</label>
+                <select v-model="genForm.type"><option value="monthly">Monthly (30 days)</option><option value="lifetime">Lifetime (never expires)</option></select>
+              </div>
+            </div>
+            <div class="g2">
+              <div class="field"><label>How many keys?</label>
+                <input type="number" min="1" max="100" v-model.number="genForm.count" placeholder="1">
+              </div>
+              <div class="field"><label>Note (optional)</label>
+                <input v-model="genForm.note" placeholder="Affiliate gift, promo...">
+              </div>
+            </div>
+            <div class="warn-box" v-if="genForm.type==='lifetime'">
+              ! Lifetime keys never expire. Generate carefully — these are permanent gifts.
+            </div>
+            <button class="btn btn-green btn-full" style="padding:12px" @click="generateKeys" :disabled="genLoading">
+              {{genLoading?"Generating...":"Generate "+genForm.count+" "+genForm.type+" key(s)"}}
+            </button>
+          </div>
+        </div>
+
+        <!-- Generated keys result -->
+        <div class="card" v-if="generatedKeys.length" style="margin-bottom:20px;border-color:var(--green)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:13px;font-weight:800;color:var(--green)">✓ {{generatedKeys.length}} keys generated</div>
+            <button class="btn btn-ghost btn-sm" @click="copyAllKeys">Copy all</button>
+          </div>
+          <div v-for="k in generatedKeys" :key="k" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <code style="flex:1;background:var(--surface2);padding:9px 14px;border-radius:8px;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--green);border:1px solid var(--border)">{{k}}</code>
+            <button class="btn btn-outline btn-xs" @click="copyKey(k)">Copy</button>
+          </div>
+        </div>
+
+        <!-- Keys table -->
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Key</th><th>Plan</th><th>Type</th><th>Status</th><th>Used by</th><th>Note</th><th>Created</th><th></th></tr></thead>
+            <tbody>
+              <tr v-if="!keys.length"><td colspan="8" style="text-align:center;color:var(--text3);padding:32px">No keys yet. Generate your first one above.</td></tr>
+              <tr v-for="k in keys" :key="k.id">
+                <td><code style="font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--green)">{{k.key}}</code></td>
+                <td><span class="badge" :class="{'badge-gold':k.plan==='pro','badge-purple':k.plan==='max'}">{{k.plan?.toUpperCase()}}</span></td>
+                <td><span class="badge" :class="k.type==='lifetime'?'badge-green':'badge-gray'">{{k.type}}</span></td>
+                <td><span class="badge" :class="k.used?'badge-red':'badge-blue'">{{k.used?"Used":"Available"}}</span></td>
+                <td style="font-size:11px;color:var(--text3)">{{k.used_by?.substring(0,12)||"—"}}</td>
+                <td style="font-size:12px;color:var(--text2)">{{k.note||"—"}}</td>
+                <td style="font-size:11.5px;color:var(--text2)">{{k.created_at?.split("T")[0]}}</td>
+                <td><button class="btn btn-red btn-xs" @click="deleteKey(k.id)" v-if="!k.used">Delete</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ SETTINGS ═══ -->
+      <div v-if="page==='settings'">
+        <div class="topbar"><div><div class="page-title">Settings</div><div class="page-sub">API connection and configuration</div></div></div>
+
+        <div class="card" style="margin-bottom:20px;max-width:560px">
+          <div style="font-size:14px;font-weight:800;margin-bottom:16px">Backend Connection</div>
+          <div class="field"><label>API Base URL</label><input v-model="API_BASE" placeholder="http://localhost:3000"></div>
+          <div class="field"><label>Admin Secret</label><input type="password" v-model="adminSecret" placeholder="Your ADMIN_SECRET from server.js"></div>
+          <button class="btn btn-green" @click="saveSettings">Save & Test Connection</button>
+          <div class="info-box" style="margin-top:14px;margin-bottom:0">After saving, go to Overview and click Refresh to load your data.</div>
+        </div>
+
+        <div class="card" style="max-width:560px">
+          <div style="font-size:14px;font-weight:800;margin-bottom:16px">Setup Guide</div>
+          <div v-for="(step,i) in setupSteps" :key="i" style="display:flex;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);last-child:{borderBottom:'none'}">
+            <div style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0">{{i+1}}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px">{{step.title}}</div>
+              <div style="font-size:12px;color:var(--text2);line-height:1.6">{{step.desc}}</div>
+              <code v-if="step.code" style="display:block;background:var(--surface2);padding:8px 12px;border-radius:6px;font-size:11px;margin-top:6px;border:1px solid var(--border)">{{step.code}}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main><!-- /main -->
+
+    <!-- EDIT USER MODAL -->
+    <div class="modal-overlay" v-if="editingUser" @click.self="editingUser=null">
+      <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+          <h3 style="font-size:18px;font-weight:800">Edit User</h3>
+          <button @click="editingUser=null" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text2)">×</button>
+        </div>
+        <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px">
+          <strong>{{editingUser.name}}</strong> · {{editingUser.email}}
+        </div>
+        <div class="g2">
+          <div class="field"><label>Plan</label>
+            <select v-model="editForm.plan"><option value="free">Free</option><option value="pro">Pro</option><option value="max">Max</option></select>
+          </div>
+          <div class="field"><label>Plan Type</label>
+            <select v-model="editForm.planType"><option value="monthly">Monthly</option><option value="lifetime">Lifetime</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Admin Note</label>
+          <textarea v-model="editForm.note" placeholder="Internal note..." style="height:72px;resize:none"></textarea>
+        </div>
+        <div class="warn-box" v-if="editForm.planType==='lifetime'">Setting Lifetime gives permanent access regardless of payment.</div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" style="flex:1" @click="editingUser=null">Cancel</button>
+          <button class="btn btn-green" style="flex:2" @click="saveUserEdit">Save changes →</button>
+        </div>
+      </div>
+    </div>
+
+  </template>
+</div><!-- /app -->
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const{createApp,ref,computed,onMounted,reactive}=Vue;
+
+createApp({
+  setup(){
+    const authed=ref(false);
+    const adminPass=ref("");
+    const loginError=ref("");
+    const page=ref("overview");
+    const loading=ref(false);
+    const toast=reactive({show:false,msg:""});
+
+    // Config - saved to localStorage
+    const API_BASE=ref(localStorage.getItem("inv_api")||"http://localhost:3000");
+    const adminSecret=ref(localStorage.getItem("inv_secret")||"");
+
+    const overview=ref(null);
+    const analytics=ref(null);
+    const users=ref([]);
+    const payments=ref([]);
+    const keys=ref([]);
+    const generatedKeys=ref([]);
+    const userSearch=ref("");
+    const editingUser=ref(null);
+    const editForm=reactive({plan:"free",planType:"monthly",note:""});
+    const showGenKeys=ref(false);
+    const showAddPayment=ref(false);
+    const payTab=ref("all");
+    const reviewingPayment=ref(null);
+    const filteredPayments=computed(()=>{
+      if(payTab.value==="all")return payments.value;
+      return payments.value.filter(p=>p.status===payTab.value);
+    });
+    const genForm=reactive({plan:"pro",type:"monthly",count:1,note:""});
+    const genLoading=ref(false);
+
+    const showToast=msg=>{toast.msg=msg;toast.show=true;setTimeout(()=>toast.show=false,3000)};
+
+    const headers=computed(()=>({
+      "Content-Type":"application/json",
+      "x-admin-secret": adminSecret.value
+    }));
+
+    const doAdminLogin=async()=>{
+      loginError.value="";
+      // Quick test against backend
+      try{
+        const res=await fetch(API_BASE.value+"/api/admin/overview",{headers:{"x-admin-secret":adminPass.value}});
+        if(res.ok){
+          adminSecret.value=adminPass.value;
+          localStorage.setItem("inv_secret",adminPass.value);
+          authed.value=true;
+          loadOverview();
+        } else {
+          loginError.value="Wrong password or backend not running.";
+        }
+      } catch(e) {
+        // Allow login for demo if backend not running
+        if(adminPass.value==="admin123"){authed.value=true;showToast("Demo mode — backend not connected");}
+        else{loginError.value="Backend not reachable. Check server.js is running. Or use 'admin123' for demo.";}
+      }
+    };
+
+    const apiFetch=async(path,opts={})=>{
+      const res=await fetch(API_BASE.value+path,{...opts,headers:headers.value});
+      if(!res.ok)throw new Error(await res.text());
+      return res.json();
+    };
+
+    const loadOverview=async()=>{
+      loading.value=true;
+      try{overview.value=await apiFetch("/api/admin/overview");}
+      catch(e){showToast("Backend error — running in demo mode");}
+      loading.value=false;
+    };
+
+    const loadAnalytics=async()=>{
+      try{analytics.value=await apiFetch("/api/admin/analytics");}
+      catch(e){
+        // Demo data
+        analytics.value={
+          totalVisits:1247,
+          invoicesByPlan:{free:892,pro:213,max:56},
+          dailyVisits:Array.from({length:30},(_,i)=>({
+            date:new Date(Date.now()-i*86400000).toISOString().split("T")[0],
+            count:Math.floor(Math.random()*80+10)
+          })).reverse()
+        };
+      }
+    };
+
+    const loadUsers=async()=>{
+      try{const d=await apiFetch("/api/admin/users");users.value=d.users||[];}
+      catch(e){users.value=[];}
+    };
+
+    const loadPayments=async()=>{
+      try{const d=await apiFetch("/api/admin/payments");payments.value=d.payments||[];}
+      catch(e){payments.value=[];}
+    };
+
+    const loadKeys=async()=>{
+      try{const d=await apiFetch("/api/admin/keys");keys.value=d.keys||[];}
+      catch(e){keys.value=[];}
+    };
+
+    const filteredUsers=computed(()=>{
+      if(!userSearch.value)return users.value;
+      const q=userSearch.value.toLowerCase();
+      return users.value.filter(u=>u.name?.toLowerCase().includes(q)||u.email?.toLowerCase().includes(q));
+    });
+
+    const totalRevenue=computed(()=>payments.value.filter(p=>p.status==="confirmed").reduce((s,p)=>s+parseFloat(p.amount||0),0).toFixed(2));
+    const monthRevenue=computed(()=>{
+      const m=new Date().toISOString().substring(0,7);
+      return payments.value.filter(p=>p.status==="confirmed"&&p.created_at?.startsWith(m)).reduce((s,p)=>s+parseFloat(p.amount||0),0).toFixed(2);
+    });
+    const pendingPayments=computed(()=>payments.value.filter(p=>p.status==="pending"));
+
+    const editUser=u=>{editingUser.value=u;editForm.plan=u.plan;editForm.planType=u.plan_type||"monthly";editForm.note=u.admin_note||"";};
+    const saveUserEdit=async()=>{
+      try{
+        await apiFetch("/api/admin/users/"+editingUser.value.id,{method:"PATCH",body:JSON.stringify({plan:editForm.plan,plan_type:editForm.planType,note:editForm.note})});
+        editingUser.value.plan=editForm.plan;editingUser.value.plan_type=editForm.planType;
+        editingUser.value=null;showToast("User updated!");loadUsers();
+      }catch(e){showToast("Error: "+e.message);}
+    };
+    const confirmDeleteUser=async u=>{
+      if(!confirm("Delete user "+u.email+"? This is permanent."))return;
+      try{await apiFetch("/api/admin/users/"+u.id,{method:"DELETE"});users.value=users.value.filter(x=>x.id!==u.id);showToast("User deleted.");}
+      catch(e){showToast("Error: "+e.message);}
+    };
+
+    const confirmPayment=async p=>{
+      if(!confirm("Confirm this payment and activate "+p.plan+" for user?"))return;
+      try{await apiFetch("/api/admin/payments/"+p.id+"/confirm",{method:"PATCH",body:JSON.stringify({userId:p.user_id,plan:p.plan})});p.status="confirmed";showToast("Payment confirmed and plan activated!");}
+      catch(e){showToast("Error: "+e.message);}
+    };
+    const setPaymentStatus=async(p,status)=>{
+      const oldStatus=p.status;
+      p.status=status;
+      if(status==="confirmed"){
+        if(!confirm("Approve payment and activate "+p.plan+" for "+p.email+"?")){{p.status=oldStatus;return;}}
+      }
+      if(status==="rejected"){
+        if(!confirm("Reject this payment from "+p.email+"?")){{p.status=oldStatus;return;}}
+      }
+      try{
+        await apiFetch("/api/admin/payments/"+p.id+"/status",{method:"PATCH",body:JSON.stringify({status,userId:p.user_id,plan:p.plan})});
+        if(status==="confirmed")showToast("Payment approved — "+p.plan.toUpperCase()+" activated for "+p.email+"!");
+        else if(status==="rejected")showToast("Payment rejected.");
+        else if(status==="processing")showToast("Marked as processing.");
+        else showToast("Status updated.");
+      }catch(e){
+        // Demo mode - just update locally
+        showToast("Status updated (demo mode — connect backend to persist).");
+      }
+    };
+    const savePaymentNote=()=>{showToast("Note saved.");reviewingPayment.value=null;};
+
+    const generateKeys=async()=>{
+      genLoading.value=true;
+      try{
+        const d=await apiFetch("/api/admin/keys/generate",{method:"POST",body:JSON.stringify(genForm)});
+        generatedKeys.value=d.keys||[];showGenKeys.value=false;showToast(d.keys?.length+" key(s) generated!");loadKeys();
+      }catch(e){
+        // Demo mode - generate locally
+        const keys=[];
+        for(let i=0;i<genForm.count;i++){
+          const k=genForm.plan.toUpperCase()+"-"+Math.random().toString(36).substring(2,5).toUpperCase()+"-"+Math.random().toString(36).substring(2,5).toUpperCase()+"-"+Math.random().toString(36).substring(2,5).toUpperCase();
+          keys.push(k);
+        }
+        generatedKeys.value=keys;showGenKeys.value=false;showToast(keys.length+" demo key(s) — connect backend to save.");
+      }
+      genLoading.value=false;
+    };
+
+    const deleteKey=async id=>{
+      if(!confirm("Delete this key?"))return;
+      try{await apiFetch("/api/admin/keys/"+id,{method:"DELETE"});keys.value=keys.value.filter(k=>k.id!==id);showToast("Key deleted.");}
+      catch(e){showToast("Error: "+e.message);}
+    };
+
+    const copyKey=async k=>{try{await navigator.clipboard.writeText(k);showToast("Key copied!");}catch(e){}};
+    const copyAllKeys=async()=>{try{await navigator.clipboard.writeText(generatedKeys.value.join("\n"));showToast("All keys copied!");}catch(e){}};
+
+    const saveSettings=async()=>{
+      localStorage.setItem("inv_api",API_BASE.value);
+      localStorage.setItem("inv_secret",adminSecret.value);
+      showToast("Settings saved! Testing connection...");
+      try{await apiFetch("/api/admin/overview");showToast("Connected successfully!");}
+      catch(e){showToast("Connection failed — check API URL and password.");}
+    };
+
+    // Watch page changes to auto-load
+    const prevPage=ref("");
+    const handlePageChange=async(p)=>{
+      if(p===prevPage.value)return;
+      prevPage.value=p;
+      if(p==="overview")loadOverview();
+      if(p==="analytics")loadAnalytics();
+      if(p==="users")loadUsers();
+      if(p==="payments")loadPayments();
+      if(p==="keys")loadKeys();
+    };
+
+    // Vue watch workaround
+    const watchedPage=computed(()=>page.value);
+
+    const setupSteps=[
+      {title:"Install Node.js",desc:"Download from nodejs.org — version 18 or higher recommended.",code:"node --version"},
+      {title:"Install dependencies",desc:"In your project folder run:",code:"npm install express cors @supabase/supabase-js"},
+      {title:"Create Supabase database",desc:"Go to supabase.com, create a free project, run the schema.sql file in the SQL editor."},
+      {title:"Set environment variables",desc:"Edit server.js and replace the 3 config values at the top: SUPABASE_URL, SUPABASE_SERVICE_KEY, ADMIN_SECRET."},
+      {title:"Start the server",desc:"Run from your project folder:",code:"node server.js"},
+      {title:"Set API URL here",desc:"In Settings above, set API Base URL to http://localhost:3000 (local) or your Railway/Render URL (production)."},
+      {title:"Deploy to Railway (free)",desc:"Push server.js to GitHub, connect Railway.app to your repo. Free tier gives you 500 hours/month.",code:"railway login && railway up"},
+    ];
+
+    return{
+      authed,adminPass,loginError,page,loading,toast,overview,analytics,
+      users,payments,keys,generatedKeys,userSearch,editingUser,editForm,
+      showGenKeys,showAddPayment,genForm,genLoading,
+      API_BASE,adminSecret,
+      filteredUsers,filteredPayments,payTab,reviewingPayment,totalRevenue,monthRevenue,pendingPayments,
+      doAdminLogin,loadOverview,loadAnalytics,loadUsers,loadPayments,loadKeys,setPaymentStatus,savePaymentNote,
+      editUser,saveUserEdit,confirmDeleteUser,confirmPayment,
+      generateKeys,deleteKey,copyKey,copyAllKeys,saveSettings,
+      handlePageChange,setupSteps,
+      // watch page changes
+      get watchPage(){return this.page},
+    };
+  },
+  watch:{
+    page(v){this.handlePageChange(v);}
+  }
+}).mount("#app");
+</script>
+</body>
+</html>
